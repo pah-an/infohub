@@ -1,0 +1,106 @@
+server:
+  host: "localhost"
+  port: "8080"
+  read_timeout: "15s"
+  write_timeout: "15s"
+  idle_timeout: "60s"
+
+# Интервал опроса источников
+interval: 30s
+
+# Настройки кэширования
+cache:
+  file_path: "news_cache.json"
+
+# Redis кэш (опционально)
+redis:
+  enabled: false
+  address: "localhost:6379"
+  password: ""
+  db: 0
+  ttl: "5m"
+  prefix: "infohub:"
+
+# Аутентификация и авторизация
+auth:
+  enabled: false
+  jwt_secret: "your-super-secret-jwt-key-change-in-production"
+  jwt_ttl: "24h"
+  admin_api_key: "infohub_admin_key_change_in_production"
+  api_keys:
+    "infohub_demo_key": "Demo API Key"
+    "infohub_readonly_key": "Read-only API Key"
+  public_paths:
+    - "/api/v1/healthz"
+    - "/swagger/"
+    - "/docs/"
+    - "/metrics"
+
+# Rate limiting
+rate_limiting:
+  enabled: false  # Включите для production
+  requests_per_second: 10
+  burst_size: 20
+
+# Логирование
+logging:
+  level: "info"
+  format: "text"
+  output: "stdout"
+
+# Мониторинг и метрики
+monitoring:
+  enabled: true
+  namespace: "infohub"
+  subsystem: "api"
+
+# Health checks
+health:
+  timeout: "5s"
+  checks:
+    redis: false
+    external_sources: true
+    disk_space: true
+    memory: true
+
+# Источники новостей
+sources:
+  - name: "Tech News"
+    url: "https://tech-news-api.herokuapp.com/api/news"
+    interval: 30s
+
+  - name: "Local Mock API"
+    url: "http://localhost:3001/api/news"
+    interval: 30s
+  
+  # Дополнительные источники можно добавить здесь
+  # - name: "Business News"
+  #   url: "https://business-api.example.com/news"
+  #   interval: 60s
+
+# CORS настройки
+cors:
+  allowed_origins:
+    - "*"
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+  allowed_headers:
+    - "Content-Type"
+    - "Authorization"
+    - "X-API-Key"
+    - "X-Request-ID"
+
+# Безопасность
+security:
+  enable_security_headers: true
+  content_security_policy: "default-src 'self'"
+
+# Профилирование (для отладки)
+profiling:
+  enabled: false
+  host: "localhost"
+  port: "6060"

@@ -1,0 +1,333 @@
+definitions:
+  domain.News:
+    properties:
+      description:
+        example: This breakthrough announcement changes the landscape...
+        type: string
+      id:
+        example: tech_news_1640995200_1
+        type: string
+      published_at:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+      source:
+        example: Tech News
+        type: string
+      title:
+        example: 'Breaking: New Go Version Released'
+        type: string
+      url:
+        example: https://example.com/news/go-release
+        type: string
+    type: object
+  v1.AdminClearCacheResponse:
+    properties:
+      message:
+        example: Cache cleared successfully
+        type: string
+      success:
+        example: true
+        type: boolean
+      timestamp:
+        type: string
+    type: object
+  v1.AdminSourceResponse:
+    properties:
+      avg_response:
+        example: 1.2s
+        type: string
+      last_check:
+        type: string
+      name:
+        example: Tech News
+        type: string
+      news_count:
+        example: 2500
+        type: integer
+      status:
+        example: healthy
+        type: string
+      url:
+        example: https://tech-news-api.herokuapp.com/api/news
+        type: string
+    type: object
+  v1.AdminStatsResponse:
+    properties:
+      cache_hit_ratio:
+        example: 0.85
+        type: number
+      goroutines:
+        example: 50
+        type: integer
+      memory_usage:
+        example: 128MB
+        type: string
+      sources_active:
+        example: 2
+        type: integer
+      total_news:
+        example: 5000
+        type: integer
+      total_requests:
+        example: 1000
+        type: integer
+      uptime:
+        example: 24h30m
+        type: string
+    type: object
+  v1.ErrorResponse:
+    properties:
+      code:
+        example: 400
+        type: integer
+      error:
+        example: Invalid request
+        type: string
+      version:
+        example: v1
+        type: string
+    type: object
+  v1.HealthResponse:
+    properties:
+      service:
+        example: InfoHub
+        type: string
+      status:
+        example: ok
+        type: string
+      timestamp:
+        type: string
+      version:
+        example: v1
+        type: string
+    type: object
+  v1.LoginRequest:
+    properties:
+      api_key:
+        example: your-api-key
+        type: string
+    type: object
+  v1.LoginResponse:
+    properties:
+      expires_in:
+        example: 24h
+        type: string
+      is_admin:
+        example: false
+        type: boolean
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user_id:
+        example: user123
+        type: string
+    type: object
+  v1.NewsResponse:
+    properties:
+      count:
+        example: 10
+        type: integer
+      news:
+        items:
+          $ref: '#/definitions/domain.News'
+        type: array
+      version:
+        example: v1
+        type: string
+    type: object
+  v1.ValidateTokenResponse:
+    properties:
+      is_admin:
+        example: false
+        type: boolean
+      scopes:
+        example:
+        - read
+        - write
+        items:
+          type: string
+        type: array
+      user_id:
+        example: user123
+        type: string
+      valid:
+        example: true
+        type: boolean
+    type: object
+info:
+  contact: {}
+paths:
+  /admin/cache/clear:
+    post:
+      consumes:
+      - application/json
+      description: Очищает кэш новостей (только для администраторов)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.AdminClearCacheResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Очистить кэш
+      tags:
+      - admin
+  /admin/sources:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о всех источниках новостей (только для администраторов)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/v1.AdminSourceResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить информацию об источниках
+      tags:
+      - admin
+  /admin/stats:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает статистику работы системы (только для администраторов)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.AdminStatsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить статистику системы
+      tags:
+      - admin
+  /healthz:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает статус работы сервиса
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.HealthResponse'
+      summary: Проверка состояния сервиса
+      tags:
+      - system
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Авторизация по API ключу и получение JWT токена
+      parameters:
+      - description: Данные для авторизации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: Авторизация пользователя
+      tags:
+      - auth
+  /news:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает последние новости, агрегированные из всех источников
+      parameters:
+      - description: Количество новостей (по умолчанию 100)
+        in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.NewsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: Получить список новостей
+      tags:
+      - news
+  /validate:
+    get:
+      consumes:
+      - application/json
+      description: Проверяет валидность JWT токена
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ValidateTokenResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Проверить токен
+      tags:
+      - auth
+swagger: "2.0"
